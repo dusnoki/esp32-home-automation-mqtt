@@ -1,5 +1,4 @@
 #include <WiFi.h>
-#include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 #include <Wire.h>
 #include "Adafruit_HTU21DF.h"
@@ -10,6 +9,16 @@
 hw_timer_t *watchdogTimer = NULL;
 
 int recvPin = 14;
+IRrecv irrecv(recvPin);
+IRsend irsend(4);
+Adafruit_HTU21DF htu = Adafruit_HTU21DF();
+int mqttRetryAttempt = 0;
+int wifiRetryAttempt = 0;
+                      
+/* create an instance of WiFiClientSecure */
+WiFiClient espClient;
+PubSubClient client(espClient);
+
 /*LED GPIO pin*/
 const char r1 = 17;
 const char r2 = 16;
@@ -34,123 +43,11 @@ const char r8 = 13;
 #define TV_TOPIC "r1/sony/code"
 #define AV_TOPIC "r1/nec/code"
 
-int mqttRetryAttempt = 0;
-int wifiRetryAttempt = 0;
-
-IRrecv irrecv(recvPin);
-IRsend irsend(4);
-Adafruit_HTU21DF htu = Adafruit_HTU21DF();
-                      
-/* create an instance of WiFiClientSecure */
-WiFiClientSecure espClient;
-PubSubClient client(espClient);
-
 long lastMsg = 0;
 char msg[20];
 char touchmsg[20];
 int counter = 0;
 DynamicJsonBuffer  jsonBuffer(200);
-
-void setup() {
-  Serial.begin(115200);
-  // We start by connecting to a WiFi network
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-  WiFi.begin(ssid, password);
-
-  watchdogTimer = timerBegin(0,80,true);
-  timerAlarmWrite(watchdogTimer, 40000000, false);
-  timerAttachInterrupt(watchdogTimer, &interuptReboot, true);
-  timerAlarmEnable(watchdogTimer);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.print(".");
-    wifiRetryAttempt++;
-    if (wifiRetryAttempt > 5) {
-        Serial.println("Restarting!");
-        interuptReboot();
-      }
-  }
-  /* set led as output to control led on-off */
-  pinMode(r1, OUTPUT);
-  digitalWrite(r1, HIGH);
-  pinMode(r2, OUTPUT);
-  digitalWrite(r2, HIGH);
-  pinMode(r3, OUTPUT);
-  digitalWrite(r3, HIGH);
-  pinMode(r4, OUTPUT);
-  digitalWrite(r4, HIGH);
-  pinMode(r5, OUTPUT);
-  digitalWrite(r5, HIGH);
-  pinMode(r6, OUTPUT);
-  digitalWrite(r6, HIGH);
-  pinMode(r7, OUTPUT);
-  digitalWrite(r7, HIGH);
-  pinMode(r8, OUTPUT);
-  digitalWrite(r8, HIGH);
-  
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
-  Serial.print("IP address of server: ");
-  /* set SSL/TLS certificate */
-  /* configure the MQTT server with IPaddress and port */
-  client.setServer(serverHostname, 8884);
-  espClient.setCACert(ca_cert);
-  /* this receivedCallback function will be invoked
-    when client received subscribed topic */
-  client.setCallback(receivedCallback);
-  if (!htu.begin()) {
-    Serial.println("Couldn't find sensor!");
-    while (1);
-  }
-  irrecv.enableIRIn();
-  Serial.println("Everything Setup");
-}
-
-void interuptReboot() {
-    Serial.println("Rebooting");
-    esp_restart_noos();
-}
-
-void mqttconnect() {
-  /* Loop until reconnected */
-  while (!client.connected()) {
-    Serial.print("MQTT connecting ...");
-    /* client ID */
-    String clientId = "Esp32Boris2131";
-    /* connect now */
-    if (client.connect(clientId.c_str(), serverUsername.c_str(), serverPassword.c_str())) {
-      Serial.println("connected");
-      /* subscribe topic */
-      client.subscribe(R1_TOPIC);
-      client.subscribe(R2_TOPIC);
-      client.subscribe(R3_TOPIC);
-      client.subscribe(R4_TOPIC);
-      client.subscribe(R5_TOPIC);
-      client.subscribe(R6_TOPIC);
-      client.subscribe(R7_TOPIC);
-      client.subscribe(R8_TOPIC);
-      client.subscribe(TV_TOPIC);
-      client.subscribe(AV_TOPIC);
-      client.subscribe(WEATHER_TOPIC);
-    } else {
-      Serial.print("failed, status code =");
-      Serial.print(client.state());
-      Serial.println("try again in 5 seconds");
-      /* Wait 5 seconds before retrying */
-      delay(5000);
-      mqttRetryAttempt++;
-      if (mqttRetryAttempt > 5) {
-        Serial.println("Restarting!");
-        interuptReboot();
-      }
-    }
-  }
-}
 
 void receivedCallback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message received: ");
@@ -274,6 +171,101 @@ void receivedCallback(char* topic, byte* payload, unsigned int length) {
   }
 }
 
+void mqttconnect() {
+  /* Loop until reconnected */
+  while (!client.connected()) {
+    Serial.print("MQTT connecting ...");
+    /* client ID */
+    String clientId = "Esp32Boris2131";
+    /* connect now */
+    if (client.connect(clientId.c_str(), serverUsername.c_str(), serverPassword.c_str())) {
+      Serial.println("connected");
+      /* subscribe topic */
+      client.subscribe(R1_TOPIC);
+      client.subscribe(R2_TOPIC);
+      client.subscribe(R3_TOPIC);
+      client.subscribe(R4_TOPIC);
+      client.subscribe(R5_TOPIC);
+      client.subscribe(R6_TOPIC);
+      client.subscribe(R7_TOPIC);
+      client.subscribe(R8_TOPIC);
+      client.subscribe(TV_TOPIC);
+      client.subscribe(AV_TOPIC);
+      client.subscribe(WEATHER_TOPIC);
+    } else {
+      Serial.print("failed, status code =");
+      Serial.print(client.state());
+      Serial.println("try again in 5 seconds");
+      /* Wait 5 seconds before retrying */
+      delay(5000);
+      mqttRetryAttempt++;
+      if (mqttRetryAttempt > 5) {
+        Serial.println("Restarting!");
+        interuptReboot();
+      }
+    }
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  // We start by connecting to a WiFi network
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+
+  watchdogTimer = timerBegin(0,80,true);
+  timerAlarmWrite(watchdogTimer, 40000000, false);
+  timerAttachInterrupt(watchdogTimer, &interuptReboot, true);
+  timerAlarmEnable(watchdogTimer);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.print(".");
+    wifiRetryAttempt++;
+    if (wifiRetryAttempt > 5) {
+        Serial.println("Restarting!");
+        interuptReboot();
+      }
+  }
+  /* set led as output to control led on-off */
+  pinMode(r1, OUTPUT);
+  digitalWrite(r1, HIGH);
+  pinMode(r2, OUTPUT);
+  digitalWrite(r2, HIGH);
+  pinMode(r3, OUTPUT);
+  digitalWrite(r3, HIGH);
+  pinMode(r4, OUTPUT);
+  digitalWrite(r4, HIGH);
+  pinMode(r5, OUTPUT);
+  digitalWrite(r5, HIGH);
+  pinMode(r6, OUTPUT);
+  digitalWrite(r6, HIGH);
+  pinMode(r7, OUTPUT);
+  digitalWrite(r7, HIGH);
+  pinMode(r8, OUTPUT);
+  digitalWrite(r8, HIGH);
+  
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  Serial.print("IP address of server: ");
+  /* set SSL/TLS certificate */
+  /* configure the MQTT server with IPaddress and port */
+  client.setServer(serverHostname, 1883);
+  /* this receivedCallback function will be invoked
+    when client received subscribed topic */
+  client.setCallback(receivedCallback);
+  if (!htu.begin()) {
+    Serial.println("Couldn't find sensor!");
+    while (1);
+  }
+  irrecv.enableIRIn();
+  Serial.println("Everything Setup");
+}
+
 String ircode (decode_results *results)
 {
   String result;
@@ -358,4 +350,9 @@ void loop() {
     json.toCharArray(data, (json.length() + 1));
     client.publish(WEATHER_TOPIC, data, false);
   }
+}
+
+void interuptReboot() {
+    Serial.println("Rebooting");
+    esp_restart_noos();
 }
