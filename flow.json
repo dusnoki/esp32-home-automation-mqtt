@@ -6,7 +6,7 @@
         "name": "Room1 Weather",
         "topic": "r1/weather",
         "qos": "0",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 100,
         "y": 140,
         "wires": [
@@ -92,7 +92,7 @@
         "name": "TV Button",
         "topic": "r1/sony/button",
         "qos": "0",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 80,
         "y": 380,
         "wires": [
@@ -109,7 +109,7 @@
         "topic": "r1/sony/code",
         "qos": "0",
         "retain": "",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 620,
         "y": 720,
         "wires": []
@@ -562,7 +562,7 @@
         "name": "",
         "topic": "r1/remote",
         "qos": "0",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 660,
         "y": 480,
         "wires": [
@@ -803,7 +803,7 @@
         "name": "AV Button",
         "topic": "r1/nec/button",
         "qos": "0",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 380,
         "y": 920,
         "wires": [
@@ -836,7 +836,7 @@
         "topic": "r1/nec/code",
         "qos": "0",
         "retain": "",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 900,
         "y": 1020,
         "wires": []
@@ -984,7 +984,7 @@
         "topic": "r1/sony/code",
         "qos": "0",
         "retain": "",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 280,
         "y": 1140,
         "wires": []
@@ -1021,7 +1021,7 @@
         "name": "LED Strip Button",
         "topic": "r1/nec/button",
         "qos": "0",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 400,
         "y": 1220,
         "wires": [
@@ -1054,7 +1054,7 @@
         "topic": "r1/nec/code",
         "qos": "0",
         "retain": "",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 1040,
         "y": 1700,
         "wires": []
@@ -1727,7 +1727,7 @@
         "topic": "r1/r2",
         "qos": "",
         "retain": "true",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 1360,
         "y": 760,
         "wires": []
@@ -1770,7 +1770,7 @@
         "topic": "r1/r1",
         "qos": "",
         "retain": "false",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 1360,
         "y": 700,
         "wires": []
@@ -1814,7 +1814,7 @@
         "topic": "r1/r3",
         "qos": "",
         "retain": "true",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 1360,
         "y": 820,
         "wires": []
@@ -1857,7 +1857,7 @@
         "topic": "r1/r4",
         "qos": "",
         "retain": "true",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 1360,
         "y": 880,
         "wires": []
@@ -1900,7 +1900,7 @@
         "topic": "r1/r5",
         "qos": "",
         "retain": "true",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 1360,
         "y": 940,
         "wires": []
@@ -1943,7 +1943,7 @@
         "topic": "r1/r6",
         "qos": "",
         "retain": "true",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 1360,
         "y": 1000,
         "wires": []
@@ -1986,7 +1986,7 @@
         "topic": "r1/r7",
         "qos": "",
         "retain": "true",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 1360,
         "y": 1060,
         "wires": []
@@ -2029,7 +2029,7 @@
         "topic": "r1/r8",
         "qos": "",
         "retain": "true",
-        "broker": "6f2b710e.407b4",
+        "broker": "a4fba2e9.f04d8",
         "x": 1360,
         "y": 1120,
         "wires": []
@@ -2146,9 +2146,9 @@
         "name": "IP",
         "topic": "home/br/nb/ip",
         "qos": "2",
-        "broker": "6f2b710e.407b4",
-        "x": 70,
-        "y": 220,
+        "broker": "a4fba2e9.f04d8",
+        "x": 80,
+        "y": 240,
         "wires": [
             [
                 "85eb7733.59e688"
@@ -2176,9 +2176,9 @@
         "name": "door",
         "topic": "home/br/nb/deur",
         "qos": "2",
-        "broker": "6f2b710e.407b4",
-        "x": 70,
-        "y": 280,
+        "broker": "a4fba2e9.f04d8",
+        "x": 80,
+        "y": 300,
         "wires": [
             [
                 "e0772c27.a0f6e"
@@ -2214,13 +2214,13 @@
         "wires": []
     },
     {
-        "id": "6f2b710e.407b4",
+        "id": "a4fba2e9.f04d8",
         "type": "mqtt-broker",
         "z": "",
         "name": "locahost",
         "broker": "localhost",
         "port": "1883",
-        "clientid": "nodered",
+        "clientid": "note1",
         "usetls": false,
         "compatmode": true,
         "keepalive": "60",
@@ -2229,6 +2229,7 @@
         "birthQos": "0",
         "birthPayload": "",
         "closeTopic": "",
+        "closeQos": "0",
         "closePayload": "",
         "willTopic": "",
         "willQos": "0",
