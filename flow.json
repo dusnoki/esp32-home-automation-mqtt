@@ -43,11 +43,11 @@
         "width": 0,
         "height": 0,
         "gtype": "gage",
-        "title": "Gauge",
+        "title": "Temperature",
         "label": "C",
         "format": "{{msg.payload.temperature}}",
-        "min": "-15",
-        "max": "40",
+        "min": "10",
+        "max": "30",
         "colors": [
             "#005aff",
             "#57ee7a",
@@ -576,14 +576,15 @@
         "type": "function",
         "z": "ed26bac0.4d4208",
         "name": "Format SQL Query",
-        "func": "var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds\nvar localISOTime = (new Date(Date.now() + Math.abs(tzoffset))).toISOString();\nvar localISOTimeSliced = localISOTime.slice(0, -1);\nvar nonLocalTime=new Date(Date.now()).toISOString().slice(0, -1);\n\nvar mysqlTime = localISOTime.slice(0, 19).replace('T', ' ');\nvar m = {\n topic : \"INSERT INTO 'temperature_record' ('device_name','rec_num','temperature','humidity', 'date_time') VALUES ('esp32',NULL,'\" + msg.payload.temperature + \"', '\" + msg.payload.humidity + \"','\"+mysqlTime+\"');\"     \n };\nreturn m;",
+        "func": "var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds\nvar localISOTime = (new Date(Date.now() + Math.abs(tzoffset))).toISOString();\nvar localISOTimeSliced = localISOTime.slice(0, -1);\nvar nonLocalTime=new Date(Date.now()).toISOString().slice(0, -1);\n\nvar mysqlTime = localISOTime.slice(0, 19).replace('T', ' ');\n\nvar m = {\n topic : \"INSERT INTO 'temperature_record' ('device_name','rec_num','temperature','humidity', 'date_time') VALUES ('esp32',NULL,'\" + msg.payload.temperature + \"', '\" + msg.payload.humidity + \"','\"+mysqlTime+\"');\"     \n };\nreturn m;",
         "outputs": 1,
         "noerr": 0,
-        "x": 750,
-        "y": 80,
+        "x": 830,
+        "y": 120,
         "wires": [
             [
-                "9da90d9f.3746b"
+                "9da90d9f.3746b",
+                "c44e92c4.2e4c2"
             ]
         ]
     },
@@ -598,23 +599,23 @@
         "height": 0,
         "label": "chart",
         "chartType": "line",
-        "legend": "false",
+        "legend": "true",
         "xformat": "HH:mm",
         "interpolate": "linear",
         "nodata": "",
         "dot": false,
-        "ymin": "",
-        "ymax": "",
+        "ymin": "-25",
+        "ymax": "100",
         "removeOlder": 1,
         "removeOlderPoints": "",
         "removeOlderUnit": "3600",
         "cutout": 0,
         "useOneColor": false,
         "colors": [
-            "#1f77b4",
-            "#aec7e8",
-            "#ff7f0e",
-            "#2ca02c",
+            "#d20000",
+            "#2900ea",
+            "#15ff0f",
+            "#ee8088",
             "#98df8a",
             "#d62728",
             "#ff9896",
@@ -661,7 +662,8 @@
         "y": 340,
         "wires": [
             [
-                "dc23e9f1.8f0148"
+                "dc23e9f1.8f0148",
+                "69571042.a64ef"
             ]
         ]
     },
@@ -670,7 +672,7 @@
         "type": "function",
         "z": "ed26bac0.4d4208",
         "name": "Format Chart",
-        "func": "var arr = [{\n    series: [\"Temperature\", \"Humidity\"],\n    labels: [\"\"],\n    data: [[], []]\n}];\n\nmsg.payload.forEach(function(row) {\n  var date = new Date(row.date_time);\n  arr[0].data[0].push({x: date.getTime(), y: row.temperature});\n  arr[0].data[1].push({x: date.getTime(), y: row.humidity});\n});\nmsg.payload = arr;\nreturn msg;",
+        "func": "var arr = [{\n    series: [\"Temperature\", \"Humidity\", \"Temperature Outside\", \"Humidity Outside\"],\n    labels: [\"Temperature\", \"Humidity\", \"Temperature Outside\", \"Humidity Outside\"],\n    data: [[], [], [], []]\n}];\n\nmsg.payload.forEach(function(row) {\n  var date = new Date(row.date_time);\n  arr[0].data[0].push({x: date.getTime(), y: row.temperature || ''});\n  arr[0].data[1].push({x: date.getTime(), y: row.humidity || ''});\n  row.temperature_outside || row.temperature_outside == 0 ? arr[0].data[2].push({x: date.getTime(), y: row.temperature_outside || ''}) : null;\n  row.humidity_outside ? arr[0].data[3].push({x: date.getTime(), y: row.humidity_outside || ''}) : null;\n});\nmsg.payload = arr;\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "x": 1490,
@@ -1738,7 +1740,7 @@
         "z": "ed26bac0.4d4208",
         "name": "",
         "label": "R2",
-        "group": "90ed1378.4be3d",
+        "group": "bda4d598.c0a088",
         "order": 0,
         "width": 0,
         "height": 0,
@@ -1780,8 +1782,8 @@
         "type": "ui_switch",
         "z": "ed26bac0.4d4208",
         "name": "",
-        "label": "R1R1",
-        "group": "90ed1378.4be3d",
+        "label": "R1",
+        "group": "bda4d598.c0a088",
         "order": 0,
         "width": 0,
         "height": 0,
@@ -1825,7 +1827,7 @@
         "z": "ed26bac0.4d4208",
         "name": "",
         "label": "R3",
-        "group": "90ed1378.4be3d",
+        "group": "bda4d598.c0a088",
         "order": 0,
         "width": 0,
         "height": 0,
@@ -1868,7 +1870,7 @@
         "z": "ed26bac0.4d4208",
         "name": "",
         "label": "R4",
-        "group": "90ed1378.4be3d",
+        "group": "bda4d598.c0a088",
         "order": 0,
         "width": 0,
         "height": 0,
@@ -1911,7 +1913,7 @@
         "z": "ed26bac0.4d4208",
         "name": "",
         "label": "R5",
-        "group": "90ed1378.4be3d",
+        "group": "bda4d598.c0a088",
         "order": 0,
         "width": 0,
         "height": 0,
@@ -1954,7 +1956,7 @@
         "z": "ed26bac0.4d4208",
         "name": "",
         "label": "R6",
-        "group": "90ed1378.4be3d",
+        "group": "bda4d598.c0a088",
         "order": 0,
         "width": 0,
         "height": 0,
@@ -1997,7 +1999,7 @@
         "z": "ed26bac0.4d4208",
         "name": "",
         "label": "R7",
-        "group": "90ed1378.4be3d",
+        "group": "bda4d598.c0a088",
         "order": 0,
         "width": 0,
         "height": 0,
@@ -2040,7 +2042,7 @@
         "z": "ed26bac0.4d4208",
         "name": "",
         "label": "R8",
-        "group": "90ed1378.4be3d",
+        "group": "bda4d598.c0a088",
         "order": 0,
         "width": 0,
         "height": 0,
@@ -2091,7 +2093,8 @@
         "y": 420,
         "wires": [
             [
-                "480b92eb.32c09c"
+                "480b92eb.32c09c",
+                "c7a4a255.5c9f9"
             ]
         ]
     },
@@ -2103,10 +2106,12 @@
         "sqlquery": "msg.topic",
         "sql": "",
         "name": "SQLITE",
-        "x": 1000,
+        "x": 1060,
         "y": 40,
         "wires": [
-            []
+            [
+                "d09f2eaf.eac6d"
+            ]
         ]
     },
     {
@@ -2114,7 +2119,7 @@
         "type": "debug",
         "z": "ed26bac0.4d4208",
         "name": "",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -2135,7 +2140,8 @@
         "y": 440,
         "wires": [
             [
-                "dc23e9f1.8f0148"
+                "dc23e9f1.8f0148",
+                "69571042.a64ef"
             ]
         ]
     },
@@ -2214,6 +2220,435 @@
         "wires": []
     },
     {
+        "id": "c3c562c2.b28ec",
+        "type": "ui_button",
+        "z": "ed26bac0.4d4208",
+        "name": "Power",
+        "group": "d2ffc9fd.1f0d08",
+        "order": 1,
+        "width": "2",
+        "height": "2",
+        "passthru": false,
+        "label": "",
+        "color": "",
+        "bgcolor": "",
+        "icon": "power_settings_new",
+        "payload": "power",
+        "payloadType": "str",
+        "topic": "",
+        "x": 1630,
+        "y": 760,
+        "wires": [
+            [
+                "c9e5131.8ce51f"
+            ]
+        ]
+    },
+    {
+        "id": "c9e5131.8ce51f",
+        "type": "function",
+        "z": "ed26bac0.4d4208",
+        "name": "Parse Buttons",
+        "func": "if (msg.payload === \"power\") {\n    msg.payload = '{\"code1\": \"100bcbd\"}';\n} else if (msg.payload === \"vup\") {\n    msg.payload = '{\"code1\": \"1000405\"}';\n} else if (msg.payload === \"vdn\") {\n    msg.payload = '{\"code1\": \"1008485\"}';\n} else if (msg.payload === \"cup\") {\n    msg.payload = '{\"code1\": \"1002C2D\"}';\n} else if (msg.payload === \"cdn\") {\n    msg.payload = '{\"code1\": \"100ACAD\"}';\n} else if (msg.payload === \"1\") {\n    msg.payload = '{\"code1\": \"10\"}';\n} else if (msg.payload === \"2\") {\n    msg.payload = '{\"code1\": \"810\"}';\n} else if (msg.payload === \"3\") {\n    msg.payload = '{\"code1\": \"410\"}';\n} else if (msg.payload === \"4\") {\n    msg.payload = '{\"code1\": \"C10\"}';\n} else if (msg.payload === \"5\") {\n    msg.payload = '{\"code1\": \"210\"}';\n} else if (msg.payload === \"6\") {\n    msg.payload = '{\"code1\": \"A10\"}';\n} else if (msg.payload === \"7\") {\n    msg.payload = '{\"code1\": \"610\"}';\n} else if (msg.payload === \"8\") {\n    msg.payload = '{\"code1\": \"E10\"}';\n} else if (msg.payload === \"9\") {\n    msg.payload = '{\"code1\": \"110\"}';\n} else if (msg.payload === \"0\") {\n    msg.payload = '{\"code1\": \"910\"}';\n} else if (msg.payload === \"mute\") {\n    msg.payload = '{\"code1\": \"1004C4D\"}';\n} else if (msg.payload === \"__\") {\n    msg.payload = '{\"code1\": \"b90\"}';\n} else {msg.payload = '{\"message\": \"Unknown Code\"}'}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1860,
+        "y": 780,
+        "wires": [
+            [
+                "648252f2.f5ea0c"
+            ]
+        ]
+    },
+    {
+        "id": "648252f2.f5ea0c",
+        "type": "mqtt out",
+        "z": "ed26bac0.4d4208",
+        "name": "TV Code",
+        "topic": "r1/panasonic/code",
+        "qos": "0",
+        "retain": "",
+        "broker": "a4fba2e9.f04d8",
+        "x": 2060,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "ba1270c.069ce9",
+        "type": "ui_button",
+        "z": "ed26bac0.4d4208",
+        "name": "Channel Up",
+        "group": "d2ffc9fd.1f0d08",
+        "order": 4,
+        "width": "2",
+        "height": "2",
+        "passthru": false,
+        "label": "",
+        "color": "",
+        "bgcolor": "",
+        "icon": "keyboard_arrow_up",
+        "payload": "cup",
+        "payloadType": "str",
+        "topic": "",
+        "x": 1650,
+        "y": 800,
+        "wires": [
+            [
+                "c9e5131.8ce51f"
+            ]
+        ]
+    },
+    {
+        "id": "b87b8047.518eb",
+        "type": "ui_button",
+        "z": "ed26bac0.4d4208",
+        "name": "Volume Up",
+        "group": "d2ffc9fd.1f0d08",
+        "order": 6,
+        "width": "2",
+        "height": "2",
+        "passthru": false,
+        "label": "",
+        "color": "",
+        "bgcolor": "",
+        "icon": "volume_up",
+        "payload": "vup",
+        "payloadType": "str",
+        "topic": "",
+        "x": 1650,
+        "y": 840,
+        "wires": [
+            [
+                "c9e5131.8ce51f"
+            ]
+        ]
+    },
+    {
+        "id": "ba5a4be4.c8f268",
+        "type": "ui_button",
+        "z": "ed26bac0.4d4208",
+        "name": "Channel Down",
+        "group": "d2ffc9fd.1f0d08",
+        "order": 7,
+        "width": "2",
+        "height": "2",
+        "passthru": false,
+        "label": "",
+        "color": "",
+        "bgcolor": "",
+        "icon": "keyboard_arrow_down",
+        "payload": "cdn",
+        "payloadType": "str",
+        "topic": "",
+        "x": 1660,
+        "y": 880,
+        "wires": [
+            [
+                "c9e5131.8ce51f"
+            ]
+        ]
+    },
+    {
+        "id": "17400db5.58d722",
+        "type": "ui_button",
+        "z": "ed26bac0.4d4208",
+        "name": "Volume Down",
+        "group": "d2ffc9fd.1f0d08",
+        "order": 9,
+        "width": "2",
+        "height": "2",
+        "passthru": false,
+        "label": "",
+        "color": "",
+        "bgcolor": "",
+        "icon": "volume_down",
+        "payload": "vdn",
+        "payloadType": "str",
+        "topic": "",
+        "x": 1660,
+        "y": 920,
+        "wires": [
+            [
+                "c9e5131.8ce51f"
+            ]
+        ]
+    },
+    {
+        "id": "c9fa860c.ed0d88",
+        "type": "ui_button",
+        "z": "ed26bac0.4d4208",
+        "name": "Mute",
+        "group": "d2ffc9fd.1f0d08",
+        "order": 3,
+        "width": "2",
+        "height": "2",
+        "passthru": false,
+        "label": "",
+        "color": "",
+        "bgcolor": "",
+        "icon": "volume_mute",
+        "payload": "mute",
+        "payloadType": "str",
+        "topic": "/r1/tv/code",
+        "x": 1630,
+        "y": 960,
+        "wires": [
+            [
+                "c9e5131.8ce51f"
+            ]
+        ]
+    },
+    {
+        "id": "c7a4a255.5c9f9",
+        "type": "debug",
+        "z": "ed26bac0.4d4208",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 1480,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "9155758c.c7da78",
+        "type": "debug",
+        "z": "ed26bac0.4d4208",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 1630,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "69571042.a64ef",
+        "type": "debug",
+        "z": "ed26bac0.4d4208",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 1100,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "c44e92c4.2e4c2",
+        "type": "debug",
+        "z": "ed26bac0.4d4208",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 1020,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "d09f2eaf.eac6d",
+        "type": "sqlite",
+        "z": "ed26bac0.4d4208",
+        "mydb": "63e75a22.0d9954",
+        "sqlquery": "fixed",
+        "sql": "SELECT * FROM temperature_record ORDER BY rec_num DESC LIMIT 1;",
+        "name": "Find Newest Entry",
+        "x": 1340,
+        "y": 100,
+        "wires": [
+            [
+                "20afa7a.a3b9a58",
+                "9155758c.c7da78"
+            ]
+        ]
+    },
+    {
+        "id": "20afa7a.a3b9a58",
+        "type": "function",
+        "z": "ed26bac0.4d4208",
+        "name": "Set latest Entry",
+        "func": "flow.set('latestEntry', msg.payload);\nreturn msg.payload;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1560,
+        "y": 220,
+        "wires": [
+            [
+                "ebc879db.d90288"
+            ]
+        ]
+    },
+    {
+        "id": "ebc879db.d90288",
+        "type": "http request",
+        "z": "ed26bac0.4d4208",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://api.openweathermap.org/data/2.5/weather?q=Subotica,rs&APPID=b01a4b1f92b65b379842d0eb025476db&units=metric",
+        "tls": "",
+        "x": 1790,
+        "y": 240,
+        "wires": [
+            [
+                "a5afd8de.fcddb8",
+                "e66bd7c3.fe0ff8",
+                "a8513e65.0f7f2"
+            ]
+        ]
+    },
+    {
+        "id": "a5afd8de.fcddb8",
+        "type": "function",
+        "z": "ed26bac0.4d4208",
+        "name": "Format Query",
+        "func": "var latestEntry = flow.get('latestEntry');\nvar response = msg.payload;\nnode.log(latestEntry.toString());\nnode.log(response.toString());\nvar m = {\n topic : \"UPDATE temperature_record SET temperature_outside='\"+response.main.temp+\"', humidity_outside='\"+response.main.humidity+\"' WHERE rec_num = \"+latestEntry[0][0].rec_num+\";\"\n};\nreturn m;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 2020,
+        "y": 220,
+        "wires": [
+            [
+                "6560a1a2.fa998",
+                "d990e35f.939f8"
+            ]
+        ]
+    },
+    {
+        "id": "6560a1a2.fa998",
+        "type": "sqlite",
+        "z": "ed26bac0.4d4208",
+        "mydb": "63e75a22.0d9954",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "SQLITE",
+        "x": 2240,
+        "y": 260,
+        "wires": [
+            [
+                "7cc3b049.e398c"
+            ]
+        ]
+    },
+    {
+        "id": "7cc3b049.e398c",
+        "type": "debug",
+        "z": "ed26bac0.4d4208",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 2420,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "d990e35f.939f8",
+        "type": "debug",
+        "z": "ed26bac0.4d4208",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 2230,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "a8513e65.0f7f2",
+        "type": "ui_gauge",
+        "z": "ed26bac0.4d4208",
+        "name": "Humidity Outside",
+        "group": "90ed1378.4be3d",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Humidity Outside",
+        "label": "%",
+        "format": "{{msg.payload.main.humidity}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 2010,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "e66bd7c3.fe0ff8",
+        "type": "ui_gauge",
+        "z": "ed26bac0.4d4208",
+        "name": "Temperature Outside",
+        "group": "45167ee7.442ef",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Temperature Outside",
+        "label": "C",
+        "format": "{{msg.payload.main.temp}}",
+        "min": "-25",
+        "max": "43",
+        "colors": [
+            "#005aff",
+            "#57ee7a",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 2000,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "74fba887.3b6a48",
+        "type": "http request",
+        "z": "ed26bac0.4d4208",
+        "name": "Yahoo",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D536981%20and%20u%3D%20'c'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeysquery.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D536981%20and%20u%3D%20'c'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
+        "tls": "",
+        "x": 1760,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7ff76b53.3108e4",
+        "type": "function",
+        "z": "ed26bac0.4d4208",
+        "name": "Format Query Yahoo",
+        "func": "var latestEntry = flow.get('latestEntry');\nvar response = msg.payload;\nvar m = {\n topic : \"UPDATE temperature_record SET temperature_outside='\"+response.query.results.channel.item.condition.temp+\"', humidity_outside='\"+response.query.results.channel.atmosphere.humidity+\"' WHERE rec_num = \"+latestEntry[0][0].rec_num+\";\"\n};\nreturn m;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1960,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
         "id": "a4fba2e9.f04d8",
         "type": "mqtt-broker",
         "z": "",
@@ -2282,7 +2717,7 @@
         "z": "",
         "name": "AV",
         "tab": "e00e3ad5.cfaf48",
-        "order": 3,
+        "order": 4,
         "disp": true,
         "width": "4",
         "collapse": false
@@ -2304,8 +2739,19 @@
         "z": "",
         "name": "LED",
         "tab": "e00e3ad5.cfaf48",
+        "order": 5,
         "disp": true,
         "width": "4",
+        "collapse": false
+    },
+    {
+        "id": "bda4d598.c0a088",
+        "type": "ui_group",
+        "z": "",
+        "name": "Relays",
+        "tab": "4fbe76a6.205ae8",
+        "disp": true,
+        "width": "6",
         "collapse": false
     },
     {
@@ -2313,6 +2759,17 @@
         "type": "sqlitedb",
         "z": "",
         "db": "/home/pi/dbs/iot.db"
+    },
+    {
+        "id": "d2ffc9fd.1f0d08",
+        "type": "ui_group",
+        "z": "",
+        "name": "Panasonic",
+        "tab": "e00e3ad5.cfaf48",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": false
     },
     {
         "id": "cf990a7e.6663a8",
@@ -2329,5 +2786,12 @@
         "name": "Control",
         "icon": "games",
         "order": 2
+    },
+    {
+        "id": "4fbe76a6.205ae8",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Relays",
+        "icon": "dashboard"
     }
 ]
