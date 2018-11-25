@@ -14,6 +14,8 @@ IRsend irsend(4);
 Adafruit_HTU21DF htu = Adafruit_HTU21DF();
 int mqttRetryAttempt = 0;
 int wifiRetryAttempt = 0;
+boolean resetCondition = false;
+
                       
 /* create an instance of WiFiClientSecure */
 WiFiClient espClient;
@@ -40,7 +42,9 @@ const char r8 = 13;
 #define R6_TOPIC "r1/r6"
 #define R7_TOPIC "r1/r7"
 #define R8_TOPIC "r1/r8"
-#define TV_TOPIC "r1/sony/code"
+#define TV_TOPIC_SONY "r1/sony/code"
+#define TV_TOPIC_PANASONIC "r1/panasonic/code"
+#define PanasonicAddress   0x4004
 #define AV_TOPIC "r1/nec/code"
 
 long lastMsg = 0;
@@ -129,7 +133,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length) {
         Serial.println(hexCode, HEX);
         irsend.sendNEC(hexCode, 32);
       }
-  } else if (strcmp(topic,TV_TOPIC)==0) {
+  } else if (strcmp(topic,TV_TOPIC_SONY)==0) {
       JsonObject& root = jsonBuffer.parseObject(payload);
       if (!root.success()) {
         Serial.println("parseObject() failed");
@@ -168,6 +172,30 @@ void receivedCallback(char* topic, byte* payload, unsigned int length) {
         }
       }
       
+  } else if (strcmp(topic,TV_TOPIC_PANASONIC)==0) {
+      JsonObject& root = jsonBuffer.parseObject(payload);
+      if (!root.success()) {
+        Serial.println("parseObject() failed");
+        return;
+      }
+      const char* code1 = root["code1"];
+      Serial.println(code1);
+      if (code1) {
+        unsigned long hexCode = strtoul(code1, NULL, 16);
+        Serial.println(hexCode, HEX);
+        if (hexCode == 0x100BCBD) {
+          for (int i = 0; i < 10; i++) {
+            irsend.sendPanasonic(0x4004, hexCode);
+            delay(10);
+          } 
+        } else {
+           for (int i = 0; i < 3; i++) {
+            irsend.sendPanasonic(0x4004, hexCode);
+            delay(40);
+          } 
+        }        
+      }
+      
   }
 }
 
@@ -189,7 +217,8 @@ void mqttconnect() {
       client.subscribe(R6_TOPIC);
       client.subscribe(R7_TOPIC);
       client.subscribe(R8_TOPIC);
-      client.subscribe(TV_TOPIC);
+      client.subscribe(TV_TOPIC_SONY);
+      client.subscribe(TV_TOPIC_PANASONIC);
       client.subscribe(AV_TOPIC);
       client.subscribe(WEATHER_TOPIC);
     } else {
@@ -350,6 +379,19 @@ void loop() {
     json.toCharArray(data, (json.length() + 1));
     client.publish(WEATHER_TOPIC, data, false);
   }
+  unsigned long lastMillis;
+  if (!resetCondition)
+  {
+    // start 1-hour timer;
+    lastMillis = millis();
+    resetCondition = true;
+  }
+  
+  if (resetCondition && (millis() - lastMillis >= 3600L * 1000))
+  {
+   interuptReboot();
+  }
+
 }
 
 void interuptReboot() {
