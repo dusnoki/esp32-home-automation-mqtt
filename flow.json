@@ -1,5 +1,12 @@
 [
     {
+        "id": "ed26bac0.4d4208",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
         "id": "4ae9fb85.3bb5b4",
         "type": "mqtt in",
         "z": "ed26bac0.4d4208",
@@ -692,7 +699,7 @@
         "timeout": "5",
         "timeoutUnits": "seconds",
         "rate": "1",
-        "nbRateUnits": "87",
+        "nbRateUnits": "88",
         "rateUnits": "second",
         "randomFirst": "1",
         "randomLast": "5",
@@ -702,7 +709,8 @@
         "y": 80,
         "wires": [
             [
-                "42b17ced.1a55e4"
+                "42b17ced.1a55e4",
+                "faa77ffc.81998"
             ]
         ]
     },
@@ -2483,7 +2491,7 @@
         "y": 220,
         "wires": [
             [
-                "ebc879db.d90288"
+                "b2590b8b.936818"
             ]
         ]
     },
@@ -2491,18 +2499,16 @@
         "id": "ebc879db.d90288",
         "type": "http request",
         "z": "ed26bac0.4d4208",
-        "name": "",
+        "name": "openweathermap",
         "method": "GET",
         "ret": "obj",
         "url": "http://api.openweathermap.org/data/2.5/weather?q=Subotica,rs&APPID=b01a4b1f92b65b379842d0eb025476db&units=metric",
         "tls": "",
-        "x": 1790,
+        "x": 1810,
         "y": 240,
         "wires": [
             [
-                "a5afd8de.fcddb8",
-                "e66bd7c3.fe0ff8",
-                "a8513e65.0f7f2"
+                "a5afd8de.fcddb8"
             ]
         ]
     },
@@ -2579,7 +2585,7 @@
         "gtype": "gage",
         "title": "Humidity Outside",
         "label": "%",
-        "format": "{{msg.payload.main.humidity}}",
+        "format": "{{msg.payload.currently.humidity*100}}",
         "min": 0,
         "max": "100",
         "colors": [
@@ -2605,7 +2611,7 @@
         "gtype": "gage",
         "title": "Temperature Outside",
         "label": "C",
-        "format": "{{msg.payload.main.temp}}",
+        "format": "{{msg.payload.currently.temperature}}",
         "min": "-25",
         "max": "43",
         "colors": [
@@ -2631,7 +2637,9 @@
         "x": 1760,
         "y": 300,
         "wires": [
-            []
+            [
+                "7ff76b53.3108e4"
+            ]
         ]
     },
     {
@@ -2645,8 +2653,60 @@
         "x": 1960,
         "y": 300,
         "wires": [
-            []
+            [
+                "6560a1a2.fa998"
+            ]
         ]
+    },
+    {
+        "id": "b2590b8b.936818",
+        "type": "http request",
+        "z": "ed26bac0.4d4208",
+        "name": "Dark Sky Https",
+        "method": "GET",
+        "ret": "obj",
+        "url": "https://api.darksky.net/forecast/YOURAPIKEY/46.10873,19.66449?units=auto",
+        "tls": "",
+        "x": 1820,
+        "y": 380,
+        "wires": [
+            [
+                "b7231b70.022f28",
+                "8cfde561.6d93a8",
+                "e66bd7c3.fe0ff8",
+                "a8513e65.0f7f2"
+            ]
+        ]
+    },
+    {
+        "id": "b7231b70.022f28",
+        "type": "function",
+        "z": "ed26bac0.4d4208",
+        "name": "Format Query",
+        "func": "var latestEntry = flow.get('latestEntry');\nvar response = msg.payload;\nnode.log(latestEntry.toString());\nnode.log(response.toString());\nvar m = {\n topic : \"UPDATE temperature_record SET temperature_outside='\"+response.currently.temperature+\"', humidity_outside='\"+response.currently.humidity*100+\"' WHERE rec_num = \"+latestEntry[0][0].rec_num+\";\"\n};\nreturn m;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 2020,
+        "y": 380,
+        "wires": [
+            [
+                "6560a1a2.fa998"
+            ]
+        ]
+    },
+    {
+        "id": "8cfde561.6d93a8",
+        "type": "debug",
+        "z": "ed26bac0.4d4208",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 1980,
+        "y": 480,
+        "wires": []
     },
     {
         "id": "a4fba2e9.f04d8",
