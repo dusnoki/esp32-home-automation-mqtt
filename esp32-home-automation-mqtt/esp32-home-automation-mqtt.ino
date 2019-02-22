@@ -9,8 +9,9 @@
 hw_timer_t *watchdogTimer = NULL;
 
 int recvPin = 14;
+int sendPin = 4;
 IRrecv irrecv(recvPin);
-IRsend irsend(4);
+IRsend irsend(sendPin);
 Adafruit_HTU21DF htu = Adafruit_HTU21DF();
 int mqttRetryAttempt = 0;
 int wifiRetryAttempt = 0;
@@ -21,7 +22,7 @@ boolean resetCondition = false;
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-/*LED GPIO pin*/
+/*RELAY GPIO pins*/
 const char r1 = 17;
 const char r2 = 16;
 const char r3 = 27;
@@ -78,7 +79,8 @@ void receivedCallback(char* topic, byte* payload, unsigned int length) {
       digitalWrite(r2, HIGH);
     }
   } else if (strcmp(topic,WEATHER_TOPIC)==0) {
-    timerWrite(watchdogTimer, 0);
+    timerWrite(sloncek
+               , 0);
   } else if (strcmp(topic,R3_TOPIC)==0) {
     if ((char)payload[0] == '1') {
       digitalWrite(r3, LOW);
@@ -258,7 +260,7 @@ void setup() {
         interuptReboot();
       }
   }
-  /* set led as output to control led on-off */
+  /* set Relay pins as output to control relays on-off */
   pinMode(r1, OUTPUT);
   digitalWrite(r1, HIGH);
   pinMode(r2, OUTPUT);
