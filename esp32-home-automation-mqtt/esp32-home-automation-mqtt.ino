@@ -79,8 +79,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length) {
       digitalWrite(r2, HIGH);
     }
   } else if (strcmp(topic,WEATHER_TOPIC)==0) {
-    timerWrite(sloncek
-               , 0);
+    timerWrite(watchdogTimer, 0);
   } else if (strcmp(topic,R3_TOPIC)==0) {
     if ((char)payload[0] == '1') {
       digitalWrite(r3, LOW);
